@@ -1,5 +1,5 @@
 ---
-layout: post
+layout: home
 title: Hamiltonian Solver
 ---
 
@@ -13,4 +13,4 @@ This code uses the automatic differentiation capabilities of TensorFlow to gener
 
 Below is a visualization of the TensorFlow graph.  You can see the four boxes responsible for calculating the four k values of RK4 and how they are then combined into the update_state box.
 
-![](graph.png)
+![TensorFlow Graph](graph.png)
