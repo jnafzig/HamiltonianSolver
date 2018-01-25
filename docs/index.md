@@ -11,7 +11,7 @@ This code uses TensorFlow to simulate a physical system.  The novel thing about 
    </video>
 </div>
 
-Here is a double pendulum:
+Here is the code simulating a double pendulum:
 
 <div class="myvideo">
    <video  style="display:block; width:100%; height:auto;" autoplay controls loop="loop">
