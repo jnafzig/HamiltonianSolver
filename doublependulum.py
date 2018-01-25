@@ -70,6 +70,11 @@ def animate(i):
 ani = animation.FuncAnimation(fig, animate, range(N),
                               interval=25, blit=True)
 
+#Set up formatting for the movie files
+Writer = animation.writers['ffmpeg']
+writer = Writer(fps=60, metadata=dict(artist='Me'), bitrate=1800)
+
+ani.save('doublependulum.mp4', writer=writer)
 plt.show()
 
 sess.close()
