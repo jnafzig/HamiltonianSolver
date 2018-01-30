@@ -2,8 +2,16 @@
 layout: default
 title: Hamiltonian Solver
 ---
+<script type="text/javascript"
+    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
 
-This code uses TensorFlow to simulate a physical system.  The novel thing about the code is that the only physics you need to specify is the [Hamiltonian][hamiltonian-wiki].  The equations of motion are then automatically determined by [automatic differentiation][autodiff-wiki]  Below is a simulation of a vibrating string (modeled as 100 masses connected linearly by springs) generated using the code.
+This code uses TensorFlow to simulate a physical system.  The novel thing about the code is that the only physics you need to specify is the [Hamiltonian][hamiltonian-wiki].  The rest is automatically determined by [automatic differentiation][autodiff-wiki].  In other words if you can specify the Hamiltonian using canonical coordinates then the code will generate and numerically (RK4) solve the equations of motion:
+
+$$\frac{\mathrm{d}\boldsymbol{p}}{\mathrm{d}t} = -\frac{\partial \mathcal{H}}{\partial \boldsymbol{q}}\quad,\quad
+\frac{\mathrm{d}\boldsymbol{q}}{\mathrm{d}t} = +\frac{\partial \mathcal{H}}{\partial \boldsymbol{p}}$$
+
+Below is a simulation of a vibrating string (modeled as 100 masses connected linearly by springs) generated using the code.
 
 <div class="myvideo">
    <video  style="display:block; width:100%; height:auto;" autoplay controls loop="loop">
