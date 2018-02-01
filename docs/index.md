@@ -2,8 +2,8 @@
 layout: default
 title: Hamiltonian Solver
 ---
-<script type="text/javascript"
-    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
 </script>
 
 This code uses TensorFlow to simulate a physical system.  The novel thing about the code is that the only physics you need to specify is the [Hamiltonian][hamiltonian-wiki].  The rest is automatically determined by [automatic differentiation][autodiff-wiki].  In other words if you can specify the Hamiltonian using canonical coordinates then the code will generate and numerically (RK4) solve the equations of motion:
