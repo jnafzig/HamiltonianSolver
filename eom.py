@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import tensorflow as tf
 
-def double_pendulum_eom(l1,l2,m1,m2,g,t,x):
+def double_pendulum_eom(l1,l2,m1,m2,g,t,x,axis=1):
     with tf.variable_scope('eom'):
               
-        q1,q2,p1,p2 = tf.unstack(x, axis=1)
+        q1,q2,p1,p2 = tf.unstack(x, axis=axis)
         
         qdiff = q1-q2
         cosdiff = tf.cos(qdiff)
@@ -17,6 +17,20 @@ def double_pendulum_eom(l1,l2,m1,m2,g,t,x):
         pdot1 = -(m1+m2)*g*l1*tf.sin(q1) - c1 + c2
         pdot2 = -m2*g*l2*tf.sin(q2) + c1 - c2
         
-        dxdt = tf.stack([qdot1,qdot2,pdot1,pdot2], axis=1)
+        dxdt = tf.stack([qdot1,qdot2,pdot1,pdot2], axis=axis)
         
         return dxdt
+
+
+    
+def double_pendulum_jacobian(dxdt,t,x):
+    with tf.variable_scope('jacobian'):
+        def jacobian(x):
+            y = dxdt(t,x,axis=0)
+            jac = tf.stack([tf.gradients(yi, x)[0] for yi in tf.unstack(y, axis=0)], axis=1)
+            return jac 
+        return tf.map_fn(jacobian , x)
+    
+
+        
+        

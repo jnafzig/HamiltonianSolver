@@ -48,7 +48,6 @@ def plot_mini_pendula(state,t1,t2,l1,l2,save=False):
     xvals = np.stack([0.0*x1,x1,x2],axis=1)*dtheta1/2 + t2.reshape((1,1,-1))
     yvals = np.stack([0.0*y1,y1,y2],axis=1)*dtheta2/2 + t1.reshape((1,1,-1))
     
-    
     x1_mir = l1 * np.sin(-state[:,:,0])
     y1_mir = -l1 * np.cos(-state[:,:,0])
     x2_mir = x1_mir + l2 * np.sin(-state[:,:,1]) 
@@ -134,6 +133,9 @@ def plot_double_pendulum(state,l1,l2,i,save=False):
     plt.show()
     
     return ani
+
+plot_double_pendulum(state,l1,l2,10)
+plt.show()
 
 def plot_image(state,t1,t2,save=False,mirror=True):
     
