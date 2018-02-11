@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" helper functions for tf, to create hamiltonians and calculate equations of motion """
 import tensorflow as tf
 
 # hamiltonian function for double pendulum

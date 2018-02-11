@@ -1,22 +1,18 @@
-
 # -*- coding: utf-8 -*-
+""" Runs N = height * width pendulum simulations and measures how long it takes for pendulum to flip"""
 from functools import partial
 import tensorflow as tf
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import time
 import pickle
 
+import sys
+sys.path.insert(0, '..')
 from eom import double_pendulum_eom
+from hamiltonians import double_pendulum_hamiltonian, split_coordinates
+from solver import rk4_step
 
-from hamiltonians import double_pendulum_hamiltonian, hamiltonian_time_derivative, split_coordinates
-from solver import rk4_step, update_state
-
-tf.reset_default_graph()
-sess = tf.InteractiveSession()
-
-# setup simulation
+# setup simulation parameters
 l1 = 1
 l2 = 1
 m1 = 1
@@ -33,6 +29,10 @@ t1,t2 = np.meshgrid(theta1,theta2)
 
 initial_angles = np.hstack((np.reshape(t1,(-1,1)),np.reshape(t2,(-1,1))))
 initial_momenta = np.zeros(initial_angles.shape)
+
+# setup compuational graph
+tf.reset_default_graph()
+sess = tf.InteractiveSession()
 
 h = tf.constant(dt, dtype=tf.float64, name='time_step');
 x0 = np.hstack((initial_angles,initial_momenta))
@@ -64,20 +64,21 @@ start = time.time()
 mid = start
 i = 0
 flipped = np.zeros(state[:,0].shape)
-while indices.shape[0]>0:
+max_iter = 10000
+
+while indices.shape[0]>0 & i<max_iter:
     i = i + 1
+    
+    # Update state
     dstate = sess.run([dx],feed_dict={x: state[indices]})
     state[indices] = state[indices] + dstate
     
+    # Check for new flips and stop simulating flipped pendulums
     new_flips = (state[indices][:,1]>np.pi) | (state[indices][:,1]<-np.pi)
     flipped[indices[new_flips]] = i*dt
     mask[indices[new_flips]] = False
     indices = indices[np.logical_not(new_flips)]
     
-# =============================================================================
-#     flipped[np.logical_not(flipped) & ((state[:,1]>np.pi) | (state[:,1]<-np.pi))] = i*dt
-#     mask = mask & np.logical_not(flipped)
-# =============================================================================
     if i % 100 == 0:
         now = time.time()
         print(now-mid,np.sum(mask)/mask.shape[0],i, i*dt, now-start)

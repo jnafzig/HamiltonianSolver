@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" helper funcitons for tensorflow to generate equations of motion """
+
 import tensorflow as tf
 
 def double_pendulum_eom(l1,l2,m1,m2,g,t,x,axis=1):

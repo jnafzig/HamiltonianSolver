@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" simulate and animate vibrating string """
 from functools import partial
 import tensorflow as tf
 import numpy as np

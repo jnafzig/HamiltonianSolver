@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+""" functions for setting up numerical integration """
+
 import tensorflow as tf
 
 def rk4_step(time_derivative, t, x, h):
