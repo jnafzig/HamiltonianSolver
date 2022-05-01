@@ -18,7 +18,7 @@ m2 = 1
 g = 10
 dt = 0.01
 
-height = 10;
+height = 200;
 width = 2*(height-1)
 
 #Form grid of regularly spaced angles for initial conditions:
@@ -63,32 +63,33 @@ setup = dict(l1=l1,l2=l2,m1=m1,m2=m2,g=g,
 # build computational graph
 
 tf.reset_default_graph()
+
+with tf.device('/gpu:0'):
+    h = tf.constant(dt, dtype=tf.float32, name='time_step');
+    x0 = np.hstack((init_t1,init_t2,init_td1,init_td2))
+    t0 = 0;
+    
+    with tf.variable_scope('state'):
+        x = tf.Variable(x0, dtype=tf.float32)
+        t = tf.Variable(0, dtype=tf.float32)
+    
+    hamiltonian = partial(double_pendulum_hamiltonian, l1,l2,m1,m2,g)
+    dxdt = partial(hamiltonian_time_derivative, hamiltonian)
+    dx = rk4_step(dxdt, t, x, h)
+    update = update_state(x, t, dx, h)
+
 sess = tf.InteractiveSession()
-
-h = tf.constant(dt, dtype=tf.float32, name='time_step');
-x0 = np.hstack((init_t1,init_t2,init_td1,init_td2))
-t0 = 0;
-
-with tf.variable_scope('state'):
-    x = tf.Variable(x0, dtype=tf.float32)
-    t = tf.Variable(0, dtype=tf.float32)
-
-hamiltonian = partial(double_pendulum_hamiltonian, l1,l2,m1,m2,g)
-dxdt = partial(hamiltonian_time_derivative, hamiltonian)
-dx = rk4_step(dxdt, t, x, h)
-update = update_state(x, t, dx, h)
-
 sess.run(tf.global_variables_initializer())
 summary_writer = tf.summary.FileWriter('logdir/', sess.graph)
 
 # run simulation
 N = 1000
-state = np.array([x0]*N, dtype=np.float32)
+#state = np.array([x0]*N, dtype=np.float32)
 
 start = time.time()
 
 for i in range(N):
-    _, state[i] = sess.run([update,x])
+    _, _ = sess.run([update,x])
 
 end = time.time()
 print(end - start)
@@ -97,9 +98,9 @@ summary_writer.close()
 sess.close()
 
 # save data
-f = open("pend_data.p", "wb")
-pickle.dump([state.tolist(), setup], f)
-f.close()
+#f = open("pend_data.p", "wb")
+#pickle.dump([state.tolist(), setup], f)
+#f.close()
 
 
 

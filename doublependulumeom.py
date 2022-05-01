@@ -21,8 +21,8 @@ m2 = 1
 g = 10
 dt = 0.005
 
-height = 30
-width = 30
+height = 400
+width = 2*(height-1) 
 
 #Form grid of regularly spaced angles for initial conditions:
 
@@ -61,46 +61,52 @@ setup = dict(l1=l1,l2=l2,m1=m1,m2=m2,g=g,
 # setup computational graph
 
 tf.reset_default_graph()
+
+with tf.device('/gpu:0'):
+    h = tf.constant(dt, dtype=tf.float32, name='time_step');
+    x0 = np.hstack((init_t1,init_t2,init_td1,init_td2))
+    t0 = 0;
+    
+    with tf.variable_scope('state'):
+        x = tf.Variable(x0, dtype=tf.float32, name='x')
+        t = tf.Variable(t0, dtype=tf.float32, name='t')
+        step = tf.Variable(0, dtype=tf.int64, name='step')
+    
+    q, p = split_coordinates(x)
+    hamiltonian = double_pendulum_hamiltonian(l1,l2,m1,m2,g,q,p)
+    
+    dxdt = partial(double_pendulum_eom, l1,l2,m1,m2,g)
+    dx = rk4_step(dxdt, t, x, h)
+    update = partial(update_state, dx, h)
+
+    c = lambda x,t,step: tf.less(step, 1000)
+    loop = tf.while_loop(c, update, [x,t,step], back_prop=False)
+
 sess = tf.InteractiveSession()
-
-h = tf.constant(dt, dtype=tf.float32, name='time_step');
-x0 = np.hstack((init_t1,init_t2,init_td1,init_td2))
-t0 = 0;
-
-with tf.variable_scope('state'):
-    x = tf.Variable(x0, dtype=tf.float32)
-    t = tf.Variable(t0, dtype=tf.float32)
-
-q, p = split_coordinates(x)
-hamiltonian = double_pendulum_hamiltonian(l1,l2,m1,m2,g,q,p)
-
-dxdt = partial(double_pendulum_eom, l1,l2,m1,m2,g)
-dx = rk4_step(dxdt, t, x, h)
-update = update_state(x, t, dx, h)
-
 sess.run(tf.global_variables_initializer())
-summary_writer = tf.summary.FileWriter('logdir/', sess.graph)
+#summary_writer = tf.summary.FileWriter('logdir/', sess.graph)
 
 # run simulation
 Numiterations = 1000
-state = np.array([x0]*Numiterations, dtype=np.float32)
+#state = np.array([x0]*Numiterations, dtype=np.float32)
 
 start = time.time()
 
-for i in range(Numiterations):
-    _, state[i] = sess.run([update,x])
+sess.run([loop])
+#for i in range(Numiterations):
+#    _ = sess.run([update])
     
 end = time.time()
     
 print(end - start)
 
-summary_writer.close()
+#summary_writer.close()
 sess.close()
 
 # save data
-f = open("pend_data_eom.p", "wb")
-pickle.dump([state.tolist(), setup], f)
-f.close()
+#f = open("pend_data_eom.p", "wb")
+#pickle.dump([state.tolist(), setup], f)
+#f.close()
 
 
 

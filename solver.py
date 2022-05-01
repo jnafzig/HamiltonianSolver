@@ -29,8 +29,7 @@ def rk4_step(time_derivative, t, x, h):
     with tf.variable_scope('new_state'):
         return h/6 * (k1 + k2*2 + k3*2 + k4)
 
-def update_state(x,t,dx,h):
+def update_state(dx,h,x,t,step):
     with tf.variable_scope('update_state'):
-        return tf.group(tf.assign_add(x, dx),
-            tf.assign_add(t, h),
-            name='update_state')
+        return [tf.add(x, dx),
+            tf.add(t, h),tf.add(step,1)]
